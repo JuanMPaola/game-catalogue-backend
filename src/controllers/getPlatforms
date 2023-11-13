@@ -1,0 +1,36 @@
+const axios = require('axios');
+const URL = "https://api.rawg.io/api/games";
+const { Videogame } = require('../db');
+const { API_KEY } = process.env;
+let PAGE = 1;
+
+const getPlatforms = async (req, res) => {
+    try {
+        let platflorms = [];
+        let allGames = await Videogame.findAll()
+
+        while (PAGE < 6) {
+            let { data } = await axios(`${URL}?key=${API_KEY}&page=${PAGE}`)
+            allGames = [...allGames, ...data.results];
+            PAGE++;
+        }
+        PAGE =1;
+
+        allGames.map((game)=>{
+            game.platflorms.forEach(plat => {
+                if(!platflorms.includes(plat)) platflorms.push(plat)
+            });
+        })
+
+
+
+        if (!platflorms) return res.status(404).send("Not found")
+
+        if (platflorms) return res.status(200).json(platflorms)
+
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+
+module.exports = { getPlatforms }

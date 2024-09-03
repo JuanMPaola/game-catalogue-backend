@@ -18,7 +18,6 @@
 //                       `=---='
 //     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const server = require('./src/app.js');
-const { getGenres } = require('./src/controllers/getGenres.js');
 const { conn } = require('./src/db.js');
 
 // Syncing all the models at once.

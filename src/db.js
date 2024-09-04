@@ -3,14 +3,21 @@ const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 const {
-  DB_USER, DB_PASSWORD, DB_HOST, DB_DEPLOY, DATABASE_URL
+  DATABASE_URL
 } = process.env;
 
-const sequelize = new Sequelize(`${DATABASE_URL}`, {
-//const sequelize = new Sequelize(DB_DEPLOY, {
+const sequelize = new Sequelize(DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true, // Opcion requerida para SSL
+      rejectUnauthorized: false // Esto es necesario si el certificado es auto-firmado
+    }
+  },
   logging: false, // set to console.log to see the raw SQL queries
   native: false, // lets Sequelize know we can use pg-native for ~30% more speed
 });
+
 const basename = path.basename(__filename);
 
 const modelDefiners = [];
@@ -38,20 +45,17 @@ const { Videogame, Genre } = sequelize.models;
 Genre.belongsToMany(Videogame, { through: "videogame_genre" }),
   Videogame.belongsToMany(Genre, { through: "videogame_genre" }),
 
+sequelize.sync()
+  .then(() => {
+    console.log('Modelos sincronizados con la base de datos');
+  })
+  .catch((error) => {
+    console.error('Error al sincronizar modelos:', error);
+  });
 
-
-
-  sequelize.sync()
-    .then(() => {
-      console.log('Modelos sincronizados con la base de datos');
-    })
-    .catch((error) => {
-      console.error('Error al sincronizar modelos:', error);
-    });
-
-  module.exports = {
-    ...sequelize.models, // para poder importar los modelos así: const { Product, User } = require('./db.js');
-    conn: sequelize,     // para importart la conexión { conn } = require('./db.js');
-    Videogame,
-    Genre,
-  };
+module.exports = {
+  ...sequelize.models, // para poder importar los modelos así: const { Product, User } = require('./db.js');
+  conn: sequelize,     // para importart la conexión { conn } = require('./db.js');
+  Videogame,
+  Genre,
+};

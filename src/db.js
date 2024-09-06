@@ -9,7 +9,8 @@ const {
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
-    ssl: false // Desactiva SSL
+    require: true,
+    rejectUnauthorized: false  // Desactiva SSL
   },
   logging: false, // set to console.log to see the raw SQL queries
   native: false, // lets Sequelize know we can use pg-native for ~30% more speed

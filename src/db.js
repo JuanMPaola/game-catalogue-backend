@@ -9,10 +9,7 @@ const {
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
-    ssl: {
-      require: true, // Opcion requerida para SSL
-      rejectUnauthorized: false // Esto es necesario si el certificado es auto-firmado
-    }
+    ssl: false // Desactiva SSL
   },
   logging: false, // set to console.log to see the raw SQL queries
   native: false, // lets Sequelize know we can use pg-native for ~30% more speed
@@ -41,9 +38,8 @@ sequelize.models = Object.fromEntries(capsEntries);
 const { Videogame, Genre } = sequelize.models;
 
 // Aca vendrian las relaciones
-// Product.hasMany(Reviews);
-Genre.belongsToMany(Videogame, { through: "videogame_genre" }),
-  Videogame.belongsToMany(Genre, { through: "videogame_genre" }),
+Genre.belongsToMany(Videogame, { through: "videogame_genre" });
+Videogame.belongsToMany(Genre, { through: "videogame_genre" });
 
 sequelize.sync()
   .then(() => {
@@ -55,7 +51,7 @@ sequelize.sync()
 
 module.exports = {
   ...sequelize.models, // para poder importar los modelos así: const { Product, User } = require('./db.js');
-  conn: sequelize,     // para importart la conexión { conn } = require('./db.js');
+  conn: sequelize,     // para importar la conexión { conn } = require('./db.js');
   Videogame,
   Genre,
 };
